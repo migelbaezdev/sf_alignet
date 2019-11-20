@@ -14,27 +14,38 @@ namespace Cliente360.Integracion.Alignet
     public class IntegracionAlignetManager
     {
         private static readonly log4net.ILog _logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static string csAlignet;
 
+        public IntegracionAlignetManager(string csalignet)
+        {
+            csAlignet = csalignet;
+        }
         public void Start()
         {
-            var transacciones_alignet = ObtenerTransaccionesAlignet();
+            try
+            {
+                _logger.Info("Inicio del procesamiento API alignet...");
+                var transacciones_alignet = ObtenerTransaccionesAlignet();
+                _logger.Info("Fin del procesamiento API alignet...");
+            }
+            catch (Exception ex )
+            {
+                _logger.Error(ex);
+            }
         }
 
         private List<base_transacciones> ObtenerTransaccionesAlignet()
         {
-            _logger.Info("Inicio de la carga de solicitudes de anulaciones...");
-            //TODO Pendiente Agregar Parametro opcional al stored de getBaseAnulacion
-            // string sql = "dbo.getBaseAnulacionPruebaSiebel @ESTADO_OPERACION = 3;";
-            //TODO: Pase a Prod getBaseAnulacion to getBaseAnulacion_Test
-            string sql = "dbo.getBaseAnulacion_Test @ESTADO_OPERACION = 3;";
-            var dt_data = GetData(sql, CommandType.Text);
-            _logger.Info(string.Format("Se obtuvieron {0} anulaciones...", dt_data.Count));
-            return dt_data;
+            _logger.Info("Inicio de la carga de transacciones alignet...");
+            string sql = "dbo.getBaseAlignet @ESTADO_OPERACION = 3;";
+            var transacciones = GetData(sql, CommandType.Text);
+            _logger.Info(string.Format("Se obtuvieron {0} transacciones...", transacciones.Count));
+            return transacciones;
         }
 
         public List<base_transacciones> GetData(string sqlText, CommandType commandType = CommandType.StoredProcedure)
         {
-            var dbcon = new SqlConnection();
+            var dbcon = new SqlConnection(csAlignet);
             using (var dSqlServer = new DataSqlServer<base_transacciones>(new Db(dbcon)))
             {
                 var dt = dSqlServer.Get(sqlText, commandType);

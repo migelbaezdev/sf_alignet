@@ -10,7 +10,10 @@ namespace Cliente360.Integracion.Alignet
     {
         static void Main(string[] args)
         {
-           new IntegracionAlignetManager().Start();         
+            var cadenaConexion = System.Configuration.ConfigurationManager.
+    ConnectionStrings["connectionStringName"].ConnectionString;
+
+            new IntegracionAlignetManager(cadenaConexion).Start();
             Console.Read();
         }
     }
